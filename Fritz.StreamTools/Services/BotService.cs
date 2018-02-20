@@ -46,17 +46,30 @@ namespace Fritz.StreamTools.Services
 		private void ConnectToTwitch()
 		{
 
-			var credentials = new ConnectionCredentials(ChannelId, ChatToken);
+			var credentials = new ConnectionCredentials(Channel, ChatToken);
 
 			_Client = new TwitchClient(credentials, Channel);
 			// _Client.OnJoinedChannel += onJoinedChannel;
 			_Client.OnMessageReceived += onMessageReceived;
 			_Client.OnWhisperReceived += onWhisperReceived;
+			_Client.OnConnected += _Client_OnConnected;
+			_Client.OnConnectionError += _Client_OnConnectionError;
 
 			_Client.Connect();
 
+			Logger.LogInformation($"Client is connected: {_Client.IsConnected}");
 
 
+		}
+
+		private void _Client_OnConnectionError(object sender, OnConnectionErrorArgs e)
+		{
+			this.Logger.LogError($"Problem connecting to Twitch for the Bot: {e.Error}");
+		}
+
+		private void _Client_OnConnected(object sender, OnConnectedArgs e)
+		{
+			this.Logger.LogInformation("We're connected to Twitch");
 		}
 
 		private void onWhisperReceived(object sender, OnWhisperReceivedArgs e)
@@ -67,14 +80,19 @@ namespace Fritz.StreamTools.Services
 		private void onMessageReceived(object sender, OnMessageReceivedArgs e)
 		{
 
+			var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
 			// Don't moderate these folks
 			if (e.ChatMessage.IsMe || e.ChatMessage.IsBroadcaster) return;
 
 			using (var client = MessageHandler.NewClient())
 			{
-				var screenedValue = client.TextModeration.ScreenText("eng", "text/plain", e.ChatMessage.Message);
+				var screenedValue = client.TextModeration.ScreenText("eng", "text/plain",
+					e.ChatMessage.Message, classify: true);
 				this.Logger.LogInformation($"Message: '{e.ChatMessage.Message}' Offensive: {screenedValue.Classification.OffensiveScore}");
 			}
+
+			this.Logger.LogInformation($"Completed moderating in {stopwatch.ElapsedMilliseconds}ms");
 
 		}
 
