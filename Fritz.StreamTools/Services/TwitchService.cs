@@ -136,6 +136,7 @@ namespace Fritz.StreamTools.Services
 			Service.StopService();
 			return Task.CompletedTask;
 		}
+
 	}
 
 }

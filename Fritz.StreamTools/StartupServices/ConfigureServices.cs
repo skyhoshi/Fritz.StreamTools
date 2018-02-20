@@ -28,6 +28,8 @@ namespace Fritz.StreamTools.StartupServices
 			services.AddSingleton<IConfigureOptions<SignalrTagHelperOptions>, ConfigureSignalrTagHelperOptions>();
 			services.AddSingleton<SignalrTagHelperOptions>(cfg => cfg.GetService<IOptions<SignalrTagHelperOptions>>().Value);
 
+			services.ConfigureBotServices(configuration);
+
 			services.AddSingleton<IConfigureOptions<SignalrTagHelperOptions>, ConfigureSignalrTagHelperOptions>();
 			services.AddSingleton<SignalrTagHelperOptions>(cfg => cfg.GetService<IOptions<SignalrTagHelperOptions>>().Value);
 		}
@@ -90,6 +92,19 @@ namespace Fritz.StreamTools.StartupServices
 			services.AddSingleton<FollowerHub>();
 			services.AddMvc();
 		}
+
+		private static void ConfigureBotServices(this IServiceCollection services, IConfiguration configuration)
+		{
+
+			services.AddSingleton<MessageHandler>();
+
+			var provider = services.BuildServiceProvider();
+			var loggerFactory = provider.GetService<ILoggerFactory>();
+			var botService = new BotService(configuration, loggerFactory, provider.GetService<MessageHandler>());
+			services.AddSingleton(botService as IHostedService);
+
+		}
+
 
 	}
 }
