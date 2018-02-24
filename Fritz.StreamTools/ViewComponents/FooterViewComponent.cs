@@ -10,10 +10,10 @@ namespace Fritz.StreamTools.ViewComponents
 	public class FooterViewComponent : ViewComponent
 	{
 
-		public async Task<IViewComponentResult> InvokeAsync()
+		public Task<IViewComponentResult> InvokeAsync()
 		{
-			await Task.Delay(0);
-			return View("default");
+
+			return Task.FromResult<IViewComponentResult>(View("default"));
 
 		}
 
