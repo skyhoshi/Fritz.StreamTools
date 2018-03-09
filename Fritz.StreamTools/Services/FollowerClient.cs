@@ -11,18 +11,14 @@ namespace Fritz.StreamTools.Services
 
 		public FollowerClient(IHubContext<FollowerHub> followerContext)
 		{
-
 			this.FollowerContext = followerContext;
-
 		}
 
 		private IHubContext<FollowerHub> FollowerContext { get; }
 
 		public void UpdateFollowers(int newFollowers)
 		{
-
 			FollowerContext.Clients.All.InvokeAsync("OnFollowersCountUpdated", newFollowers);
-
 		}
 
 		public void UpdateViewers(string serviceName, int viewerCount)

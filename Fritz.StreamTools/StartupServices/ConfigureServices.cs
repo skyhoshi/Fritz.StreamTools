@@ -32,7 +32,11 @@ namespace Fritz.StreamTools.StartupServices
 
 		private static void ConfigureStreamingServices(this IServiceCollection services,
 			IConfiguration configuration)
-		{		
+		{
+
+			var provider = services.BuildServiceProvider();   // Build a 'temporary' instance of the DI container
+
+
 			services.ConfigureStreamService(configuration, 
 				(c, l) => new TwitchService(c, l),																	// Factory
 				c => string.IsNullOrEmpty(c["StreamServices:Twitch:ClientId"]));		// Test to disable
@@ -40,7 +44,7 @@ namespace Fritz.StreamTools.StartupServices
 				(c, l) => new MixerService(c, l),                                   // Factory
 				c => string.IsNullOrEmpty(c["StreamServices:Mixer:ClientId"]));			// Test to disable
 			services.ConfigureStreamService(configuration, 
-				(c, l) => new FakeService(c, l),                                                          // Factory
+				(c, l) => new FakeService(c, l, provider.GetService<FollowerClient>()),                                                          // Factory
 				c => !bool.TryParse(c["StreamServices:Fake:Enabled"], out var enabled) || !enabled);			// Test to disable
 			
 			services.AddSingleton<StreamService>();	

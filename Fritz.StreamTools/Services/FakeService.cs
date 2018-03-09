@@ -20,16 +20,19 @@ namespace Fritz.StreamTools.Services
 		int _updateFollowersInterval;
 		Timer _updateViewers;
 		Timer _updateFollowers;
+		
+		FollowerClient _FollowerClient;
 
 		public string Name => "Fake";
 
 		public ILogger Logger { get; }
 
-		public FakeService(IConfiguration config, ILoggerFactory loggerFactory)
+		public FakeService(IConfiguration config, ILoggerFactory loggerFactory, FollowerClient client)
 		{
 
 			this._config = config;
 			this.Logger = loggerFactory.CreateLogger("StreamServices");
+			this._FollowerClient = client;
 
 		}
 
@@ -75,13 +78,16 @@ namespace Fritz.StreamTools.Services
 
 				Logger.LogInformation($"New Followers on Fake, new total: {_numberOfFollowers}");
 
-				Updated?.Invoke(
-					null,
-					new ServiceUpdatedEventArgs()
-					{
-						NewFollowers = _numberOfFollowers,
-						ServiceName = Name
-					});
+				/* 
+								Updated?.Invoke(
+									null,
+									new ServiceUpdatedEventArgs()
+									{
+										NewFollowers = _numberOfFollowers,
+										ServiceName = Name
+									});
+				*/
+				this._FollowerClient.UpdateFollowers(_numberOfFollowers);
 
 			},
 			null,
@@ -109,13 +115,14 @@ namespace Fritz.StreamTools.Services
 
 				Logger.LogInformation($"New Viewers on Fake, new total: {_numberOfViewers}");
 
-				Updated?.Invoke(
-					null,
-					new ServiceUpdatedEventArgs()
-					{
-						NewViewers = _numberOfViewers,
-						ServiceName = Name
-					});
+				//Updated?.Invoke(
+				//	null,
+				//	new ServiceUpdatedEventArgs()
+				//	{
+				//		NewViewers = _numberOfViewers,
+				//		ServiceName = Name
+				//	});
+				this._FollowerClient.UpdateViewers(Name, _numberOfViewers);
 
 			},
 			null,
