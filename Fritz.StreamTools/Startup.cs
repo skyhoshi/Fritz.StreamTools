@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fritz.StreamTools.Hubs;
 using Fritz.StreamTools.Models;
 using Fritz.StreamTools.Services;
+using Fritz.Twitch;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -27,8 +28,10 @@ namespace Fritz.StreamTools
 		public void ConfigureServices(IServiceCollection services)
 		{
 
+			services.AddTwitchClient();
+
 			StartupServices.ConfigureServices.Execute(services, Configuration);
-			
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,12 +40,14 @@ namespace Fritz.StreamTools
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseBrowserLink();
 			}
 			else
 			{
 				app.UseExceptionHandler("/Error");
 			}
+
+			app.UseHsts();
+			app.UseHttpsRedirection();
 
 			app.UseStaticFiles();
 
